@@ -63,7 +63,7 @@ func TestParser_ListCommandLiteral(t *testing.T) {
 	input := toIMAPLine(`tag LIST {5}`, `"bar" %`)
 	s := rfcparser.NewScanner(bytes.NewReader(input))
 	continuationCalled := false
-	p := NewParserWithLiteralContinuationCb(s, func() error {
+	p := NewParserWithLiteralContinuationCb(s, func(string) error {
 		continuationCalled = true
 		return nil
 	})

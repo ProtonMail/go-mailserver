@@ -9,6 +9,7 @@ import (
 	"github.com/ProtonMail/gluon/internal/response"
 	"github.com/ProtonMail/gluon/logging"
 	"github.com/ProtonMail/gluon/profiling"
+	"github.com/ProtonMail/gluon/rfcparser"
 )
 
 // GOMSRV-86: What does it mean to do IDLE when you're not selected?
@@ -37,7 +38,7 @@ func (s *Session) handleIdle(ctx context.Context, tag string, _ *command.Idle, c
 			"SessionID": s.sessionID,
 		})
 
-		if err := response.Continuation().Send(s); err != nil {
+		if err := response.Continuation().Send(s, rfcparser.DefaultContinuationMessage); err != nil {
 			return err
 		}
 

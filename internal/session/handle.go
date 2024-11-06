@@ -54,7 +54,8 @@ func (s *Session) handleCommand(
 		return s.handleAnyCommand(ctx, tag, cmd, ch)
 
 	case
-		*command.Login:
+		*command.Login,
+		*command.Authenticate:
 		return s.handleNotAuthenticatedCommand(ctx, tag, cmd, ch)
 
 	case
@@ -127,7 +128,10 @@ func (s *Session) handleNotAuthenticatedCommand(
 	case *command.Login:
 		// 6.2.3. LOGIN Command
 		return s.handleLogin(ctx, tag, cmd, ch)
-
+	case *command.Authenticate:
+		// 6.2.2 AUTHENTICATE Command we only support the PLAIN mechanism,
+		// it's similar to LOGIN, so we simply handle the command as login
+		return s.handleLogin(ctx, tag, (*command.Login)(cmd), ch)
 	default:
 		return fmt.Errorf("bad command")
 	}

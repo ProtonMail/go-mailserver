@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
+const DefaultContinuationMessage = "Ready"
+
 // Parser provide facilities to consumes tokens from a given scanner. Advance should be called at least once before
 // any checks in order to initialize the previousToken.
 type Parser struct {
 	scanner               *Scanner
-	literalContinuationCb func() error
+	literalContinuationCb func(message string) error
 	previousToken         Token
 	currentToken          Token
 }
@@ -66,7 +68,7 @@ func NewParser(s *Scanner) *Parser {
 	return &Parser{scanner: s}
 }
 
-func NewParserWithLiteralContinuationCb(s *Scanner, f func() error) *Parser {
+func NewParserWithLiteralContinuationCb(s *Scanner, f func(string) error) *Parser {
 	return &Parser{scanner: s, literalContinuationCb: f,
 		previousToken: Token{
 			TType:  TokenTypeEOF,
@@ -204,7 +206,7 @@ func (p *Parser) ParseLiteral() ([]byte, error) {
 	// in the scanner due to the byte buffers implementation as there will be no more new input until the we signal
 	// for more input.
 	if p.Check(TokenTypeLF) && p.literalContinuationCb != nil {
-		if err := p.literalContinuationCb(); err != nil {
+		if err := p.literalContinuationCb(DefaultContinuationMessage); err != nil {
 			return nil, fmt.Errorf("error occurred during literal continuation callback:%w", err)
 		}
 	}
@@ -225,6 +227,24 @@ func (p *Parser) ParseLiteral() ([]byte, error) {
 	}
 
 	return literal, nil
+}
+
+func (p *Parser) ParseStringAfterContinuation(continuationMessage string) (String, error) {
+	if err := p.Consume(TokenTypeCR, "expected CR"); err != nil {
+		return String{}, err
+	}
+
+	if p.Check(TokenTypeLF) && p.literalContinuationCb != nil {
+		if err := p.literalContinuationCb(continuationMessage); err != nil {
+			return String{}, fmt.Errorf("error occurred during literal continuation callback:%w", err)
+		}
+	}
+
+	if err := p.Consume(TokenTypeLF, "expected LF after CR"); err != nil {
+		return String{}, err
+	}
+
+	return p.ParseAString()
 }
 
 // ParseNumber parses a non decimal number without any signs.
