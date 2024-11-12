@@ -105,7 +105,7 @@ func TestParser_LiteralWithContinuationSubmission(t *testing.T) {
 	}()
 
 	s := rfcparser.NewScanner(reader)
-	p := NewParserWithLiteralContinuationCb(s, func() error {
+	p := NewParserWithLiteralContinuationCb(s, func(string) error {
 		close(continueCh)
 		return nil
 	})

@@ -33,7 +33,7 @@ func (s *Session) startCommandReader(ctx context.Context) <-chan commandResult {
 			{0x16, 0x00, 0x00}, // 0.0
 		}
 
-		parser := command.NewParserWithLiteralContinuationCb(s.scanner, func() error { return response.Continuation().Send(s) })
+		parser := command.NewParserWithLiteralContinuationCb(s.scanner, func(message string) error { return response.Continuation().Send(s, message) })
 
 		for {
 			s.inputCollector.Reset()

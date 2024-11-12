@@ -10,11 +10,12 @@ const (
 	UIDPLUS   Capability = `UIDPLUS`
 	MOVE      Capability = `MOVE`
 	ID        Capability = `ID`
+	AUTHPLAIN Capability = `AUTH=PLAIN`
 )
 
 func IsCapabilityAvailableBeforeAuth(c Capability) bool {
 	switch c {
-	case IMAP4rev1, StartTLS, IDLE, ID:
+	case IMAP4rev1, StartTLS, IDLE, ID, AUTHPLAIN:
 		return true
 	case UNSELECT, UIDPLUS, MOVE:
 		return false

@@ -12,10 +12,14 @@ func Continuation() *continuation {
 	}
 }
 
-func (r *continuation) Send(s Session) error {
-	return s.WriteResponse(r.String())
+func (r *continuation) Send(s Session, message string) error {
+	return s.WriteResponse(r.String(message))
 }
 
-func (r *continuation) String() string {
-	return strings.Join([]string{r.tag, "Ready"}, " ")
+func (r *continuation) String(message string) string {
+	if len(message) == 0 {
+		return r.tag
+	}
+
+	return strings.Join([]string{r.tag, message}, " ")
 }
