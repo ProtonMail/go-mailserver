@@ -63,10 +63,10 @@ func TestParser_ListCommandLiteral(t *testing.T) {
 	input := toIMAPLine(`tag LIST {5}`, `"bar" %`)
 	s := rfcparser.NewScanner(bytes.NewReader(input))
 	continuationCalled := false
-	p := NewParserWithLiteralContinuationCb(s, func(string) error {
+	p := NewParser(s, WithLiteralContinuationCallback(func(string) error {
 		continuationCalled = true
 		return nil
-	})
+	}))
 	expected := Command{Tag: "tag", Payload: &List{
 		Mailbox:     `"bar"`,
 		ListMailbox: "%",

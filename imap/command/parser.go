@@ -11,6 +11,39 @@ type Builder interface {
 	FromParser(p *rfcparser.Parser) (Payload, error)
 }
 
+type parserBuilder struct {
+	continuationCallback    func(string) error
+	disableIMAPAuthenticate bool
+}
+
+type Option interface {
+	config(*parserBuilder)
+}
+
+type withLiteralContinuationCallback struct {
+	callback func(string) error
+}
+
+func (opt withLiteralContinuationCallback) config(builder *parserBuilder) {
+	builder.continuationCallback = opt.callback
+}
+
+func WithLiteralContinuationCallback(callback func(string) error) Option {
+	return &withLiteralContinuationCallback{
+		callback: callback,
+	}
+}
+
+type withDisableIMAPAuthenticate struct{}
+
+func (opt withDisableIMAPAuthenticate) config(builder *parserBuilder) {
+	builder.disableIMAPAuthenticate = true
+}
+
+func WithDisableIMAPAuthenticate() Option {
+	return &withDisableIMAPAuthenticate{}
+}
+
 // Parser parses IMAP Commands.
 type Parser struct {
 	parser   *rfcparser.Parser
@@ -20,45 +53,51 @@ type Parser struct {
 	lastCmd  string
 }
 
-func NewParser(s *rfcparser.Scanner) *Parser {
-	return NewParserWithLiteralContinuationCb(s, nil)
-}
+func NewParser(s *rfcparser.Scanner, options ...Option) *Parser {
+	var builder parserBuilder
+	for _, option := range options {
+		option.config(&builder)
+	}
 
-func NewParserWithLiteralContinuationCb(s *rfcparser.Scanner, cb func(string) error) *Parser {
+	commands := map[string]Builder{
+		"list":        &ListCommandParser{},
+		"append":      &AppendCommandParser{},
+		"search":      &SearchCommandParser{},
+		"fetch":       &FetchCommandParser{},
+		"capability":  &CapabilityCommandParser{},
+		"idle":        &IdleCommandParser{},
+		"noop":        &NoopCommandParser{},
+		"logout":      &LogoutCommandParser{},
+		"check":       &CheckCommandParser{},
+		"close":       &CloseCommandParser{},
+		"expunge":     &ExpungeCommandParser{},
+		"unselect":    &UnselectCommandParser{},
+		"starttls":    &StartTLSCommandParser{},
+		"status":      &StatusCommandParser{},
+		"select":      &SelectCommandParser{},
+		"examine":     &ExamineCommandParser{},
+		"create":      &CreateCommandParser{},
+		"delete":      &DeleteCommandParser{},
+		"subscribe":   &SubscribeCommandParser{},
+		"unsubscribe": &UnsubscribeCommandParser{},
+		"rename":      &RenameCommandParser{},
+		"lsub":        &LSubCommandParser{},
+		"login":       &LoginCommandParser{},
+		"store":       &StoreCommandParser{},
+		"copy":        &CopyCommandParser{},
+		"move":        &MoveCommandParser{},
+		"uid":         NewUIDCommandParser(),
+		"id":          &IDCommandParser{},
+	}
+
+	if !builder.disableIMAPAuthenticate {
+		commands["authenticate"] = &AuthenticateCommandParser{}
+	}
+
 	return &Parser{
-		scanner: s,
-		parser:  rfcparser.NewParserWithLiteralContinuationCb(s, cb),
-		commands: map[string]Builder{
-			"list":         &ListCommandParser{},
-			"append":       &AppendCommandParser{},
-			"search":       &SearchCommandParser{},
-			"fetch":        &FetchCommandParser{},
-			"capability":   &CapabilityCommandParser{},
-			"idle":         &IdleCommandParser{},
-			"noop":         &NoopCommandParser{},
-			"logout":       &LogoutCommandParser{},
-			"check":        &CheckCommandParser{},
-			"close":        &CloseCommandParser{},
-			"expunge":      &ExpungeCommandParser{},
-			"unselect":     &UnselectCommandParser{},
-			"starttls":     &StartTLSCommandParser{},
-			"status":       &StatusCommandParser{},
-			"select":       &SelectCommandParser{},
-			"examine":      &ExamineCommandParser{},
-			"create":       &CreateCommandParser{},
-			"delete":       &DeleteCommandParser{},
-			"subscribe":    &SubscribeCommandParser{},
-			"unsubscribe":  &UnsubscribeCommandParser{},
-			"rename":       &RenameCommandParser{},
-			"lsub":         &LSubCommandParser{},
-			"login":        &LoginCommandParser{},
-			"store":        &StoreCommandParser{},
-			"copy":         &CopyCommandParser{},
-			"move":         &MoveCommandParser{},
-			"uid":          NewUIDCommandParser(),
-			"id":           &IDCommandParser{},
-			"authenticate": &AuthenticateCommandParser{},
-		},
+		scanner:  s,
+		parser:   rfcparser.NewParserWithLiteralContinuationCb(s, builder.continuationCallback),
+		commands: commands,
 	}
 }
 

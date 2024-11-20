@@ -86,6 +86,9 @@ type Server struct {
 	// disableParallelism indicates whether the server is allowed to parallelize certain IMAP commands.
 	disableParallelism bool
 
+	// disableIMAPAuthenticate disables the IMAP AUTHENTICATE command (client can then only authenticate using LOGIN).
+	disableIMAPAuthenticate bool
+
 	uidValidityGenerator imap.UIDValidityGenerator
 
 	panicHandler async.PanicHandler
@@ -293,7 +296,7 @@ func (s *Server) addSession(ctx context.Context, conn net.Conn) (*session.Sessio
 
 	nextID := s.getNextID()
 
-	s.sessions[nextID] = session.New(conn, s.backend, nextID, s.versionInfo, s.cmdExecProfBuilder, s.newEventCh(ctx), s.idleBulkTime, s.panicHandler)
+	s.sessions[nextID] = session.New(conn, s.backend, nextID, s.versionInfo, s.cmdExecProfBuilder, s.newEventCh(ctx), s.idleBulkTime, s.disableIMAPAuthenticate, s.panicHandler)
 
 	if s.tlsConfig != nil {
 		s.sessions[nextID].SetTLSConfig(s.tlsConfig)
