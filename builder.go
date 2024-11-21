@@ -23,24 +23,25 @@ import (
 )
 
 type serverBuilder struct {
-	dataDir              string
-	databaseDir          string
-	delim                string
-	loginJailTime        time.Duration
-	tlsConfig            *tls.Config
-	idleBulkTime         time.Duration
-	inLogger             io.Writer
-	outLogger            io.Writer
-	versionInfo          version.Info
-	cmdExecProfBuilder   profiling.CmdProfilerBuilder
-	storeBuilder         store.Builder
-	reporter             reporter.Reporter
-	disableParallelism   bool
-	imapLimits           limits.IMAP
-	uidValidityGenerator imap.UIDValidityGenerator
-	panicHandler         async.PanicHandler
-	dbCI                 db.ClientInterface
-	observabilitySender  observability.Sender
+	dataDir                 string
+	databaseDir             string
+	delim                   string
+	loginJailTime           time.Duration
+	tlsConfig               *tls.Config
+	idleBulkTime            time.Duration
+	inLogger                io.Writer
+	outLogger               io.Writer
+	versionInfo             version.Info
+	cmdExecProfBuilder      profiling.CmdProfilerBuilder
+	storeBuilder            store.Builder
+	reporter                reporter.Reporter
+	disableParallelism      bool
+	imapLimits              limits.IMAP
+	disableIMAPAuthenticate bool
+	uidValidityGenerator    imap.UIDValidityGenerator
+	panicHandler            async.PanicHandler
+	dbCI                    db.ClientInterface
+	observabilitySender     observability.Sender
 }
 
 func newBuilder() (*serverBuilder, error) {
@@ -106,25 +107,26 @@ func (builder *serverBuilder) build() (*Server, error) {
 	}
 
 	s := &Server{
-		dataDir:              builder.dataDir,
-		databaseDir:          builder.databaseDir,
-		backend:              backend,
-		sessions:             make(map[int]*session.Session),
-		serveErrCh:           async.NewQueuedChannel[error](1, 1, builder.panicHandler, "server-err-ch"),
-		serveDoneCh:          make(chan struct{}),
-		serveWG:              async.MakeWaitGroup(builder.panicHandler),
-		inLogger:             builder.inLogger,
-		outLogger:            builder.outLogger,
-		tlsConfig:            builder.tlsConfig,
-		idleBulkTime:         builder.idleBulkTime,
-		storeBuilder:         builder.storeBuilder,
-		cmdExecProfBuilder:   builder.cmdExecProfBuilder,
-		versionInfo:          builder.versionInfo,
-		reporter:             builder.reporter,
-		disableParallelism:   builder.disableParallelism,
-		uidValidityGenerator: builder.uidValidityGenerator,
-		panicHandler:         builder.panicHandler,
-		observabilitySender:  builder.observabilitySender,
+		dataDir:                 builder.dataDir,
+		databaseDir:             builder.databaseDir,
+		backend:                 backend,
+		sessions:                make(map[int]*session.Session),
+		serveErrCh:              async.NewQueuedChannel[error](1, 1, builder.panicHandler, "server-err-ch"),
+		serveDoneCh:             make(chan struct{}),
+		serveWG:                 async.MakeWaitGroup(builder.panicHandler),
+		inLogger:                builder.inLogger,
+		outLogger:               builder.outLogger,
+		tlsConfig:               builder.tlsConfig,
+		idleBulkTime:            builder.idleBulkTime,
+		storeBuilder:            builder.storeBuilder,
+		cmdExecProfBuilder:      builder.cmdExecProfBuilder,
+		versionInfo:             builder.versionInfo,
+		reporter:                builder.reporter,
+		disableParallelism:      builder.disableParallelism,
+		disableIMAPAuthenticate: builder.disableIMAPAuthenticate,
+		uidValidityGenerator:    builder.uidValidityGenerator,
+		panicHandler:            builder.panicHandler,
+		observabilitySender:     builder.observabilitySender,
 	}
 
 	return s, nil

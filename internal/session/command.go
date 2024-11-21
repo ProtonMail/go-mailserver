@@ -33,7 +33,14 @@ func (s *Session) startCommandReader(ctx context.Context) <-chan commandResult {
 			{0x16, 0x00, 0x00}, // 0.0
 		}
 
-		parser := command.NewParserWithLiteralContinuationCb(s.scanner, func(message string) error { return response.Continuation().Send(s, message) })
+		options := []command.Option{
+			command.WithLiteralContinuationCallback(func(message string) error { return response.Continuation().Send(s, message) }),
+		}
+		if s.disableIMAPAuthenticate {
+			options = append(options, command.WithDisableIMAPAuthenticate())
+		}
+
+		parser := command.NewParser(s.scanner, options...)
 
 		for {
 			s.inputCollector.Reset()

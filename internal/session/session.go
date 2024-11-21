@@ -21,7 +21,6 @@ import (
 	"github.com/ProtonMail/gluon/internal/backend"
 	"github.com/ProtonMail/gluon/internal/response"
 	"github.com/ProtonMail/gluon/internal/state"
-	"github.com/ProtonMail/gluon/limits"
 	"github.com/ProtonMail/gluon/profiling"
 	"github.com/ProtonMail/gluon/reporter"
 	"github.com/ProtonMail/gluon/rfcparser"
@@ -84,13 +83,16 @@ type Session struct {
 	// handleWG is used to wait for all commands to finish before closing the session.
 	handleWG async.WaitGroup
 
-	/// errorCount error counter
+	/// errorCount error counter.
 	errorCount int
 
-	imapLimits limits.IMAP
+	// disableIMAPAuthenticate disables the IMAP AUTHENTICATE command (client can then only authenticate using LOGIN).
+	disableIMAPAuthenticate bool
 
+	// panicHandler The panic handler.
 	panicHandler async.PanicHandler
 
+	// log The log for the session.
 	log *logrus.Entry
 }
 
@@ -102,25 +104,32 @@ func New(
 	profiler profiling.CmdProfilerBuilder,
 	eventCh chan<- events.Event,
 	idleBulkTime time.Duration,
+	disableIMAPAuthenticate bool,
 	panicHandler async.PanicHandler,
 ) *Session {
 	inputCollector := command.NewInputCollector(bufio.NewReader(conn))
 	scanner := rfcparser.NewScannerWithReader(inputCollector)
 
+	caps := []imap.Capability{imap.IMAP4rev1, imap.IDLE, imap.UNSELECT, imap.UIDPLUS, imap.MOVE, imap.ID}
+	if !disableIMAPAuthenticate {
+		caps = append(caps, imap.AUTHPLAIN)
+	}
+
 	return &Session{
-		conn:               conn,
-		inputCollector:     inputCollector,
-		scanner:            scanner,
-		backend:            backend,
-		caps:               []imap.Capability{imap.IMAP4rev1, imap.IDLE, imap.UNSELECT, imap.UIDPLUS, imap.MOVE, imap.ID, imap.AUTHPLAIN},
-		sessionID:          sessionID,
-		eventCh:            eventCh,
-		idleBulkTime:       idleBulkTime,
-		version:            version,
-		cmdProfilerBuilder: profiler,
-		handleWG:           async.MakeWaitGroup(panicHandler),
-		panicHandler:       panicHandler,
-		log:                logrus.WithField("pkg", "gluon/session").WithField("session", sessionID),
+		conn:                    conn,
+		inputCollector:          inputCollector,
+		scanner:                 scanner,
+		backend:                 backend,
+		caps:                    caps,
+		sessionID:               sessionID,
+		eventCh:                 eventCh,
+		idleBulkTime:            idleBulkTime,
+		version:                 version,
+		cmdProfilerBuilder:      profiler,
+		handleWG:                async.MakeWaitGroup(panicHandler),
+		disableIMAPAuthenticate: disableIMAPAuthenticate,
+		panicHandler:            panicHandler,
+		log:                     logrus.WithField("pkg", "gluon/session").WithField("session", sessionID),
 	}
 }
 

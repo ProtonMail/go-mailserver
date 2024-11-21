@@ -221,6 +221,16 @@ func WithIMAPLimits(limits limits2.IMAP) Option {
 	}
 }
 
+type withDisableIMAPAuthenticate struct{}
+
+func (withDisableIMAPAuthenticate) config(builder *serverBuilder) {
+	builder.disableIMAPAuthenticate = true
+}
+
+func WithDisableIMAPAuthenticate() Option {
+	return &withDisableIMAPAuthenticate{}
+}
+
 type withUIDValidityGenerator struct {
 	generator imap.UIDValidityGenerator
 }

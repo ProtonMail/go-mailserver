@@ -67,19 +67,20 @@ func (*dummyConnectorBuilder) New(usernames []string, password []byte, period ti
 }
 
 type serverOptions struct {
-	credentials          []credentials
-	delimiter            string
-	loginJailTime        time.Duration
-	dataDir              string
-	databaseDir          string
-	idleBulkTime         time.Duration
-	storeBuilder         store.Builder
-	connectorBuilder     connectorBuilder
-	disableParallelism   bool
-	imapLimits           limits.IMAP
-	reporter             reporter.Reporter
-	uidValidityGenerator imap.UIDValidityGenerator
-	database             db.ClientInterface
+	credentials             []credentials
+	delimiter               string
+	loginJailTime           time.Duration
+	dataDir                 string
+	databaseDir             string
+	idleBulkTime            time.Duration
+	storeBuilder            store.Builder
+	connectorBuilder        connectorBuilder
+	disableParallelism      bool
+	imapLimits              limits.IMAP
+	disableIMAPAuthenticate bool
+	reporter                reporter.Reporter
+	uidValidityGenerator    imap.UIDValidityGenerator
+	database                db.ClientInterface
 }
 
 func (s *serverOptions) defaultUsername() string {
@@ -190,6 +191,12 @@ func (w withDatabaseOption) apply(options *serverOptions) {
 	options.database = w.database
 }
 
+type disableIMAPAuthenticateOption struct{}
+
+func (disableIMAPAuthenticateOption) apply(options *serverOptions) {
+	options.disableIMAPAuthenticate = true
+}
+
 func (u uidValidityGeneratorOption) apply(options *serverOptions) {
 	options.uidValidityGenerator = u.generator
 }
@@ -240,6 +247,10 @@ func withDatabaseDir(dir string) serverOption {
 
 func withDatabase(ci db.ClientInterface) serverOption {
 	return &withDatabaseOption{database: ci}
+}
+
+func withDisableIMAPAuthenticate() serverOption {
+	return &disableIMAPAuthenticateOption{}
 }
 
 func defaultServerOptions(tb testing.TB, modifiers ...serverOption) *serverOptions {
@@ -318,6 +329,10 @@ func runServer(tb testing.TB, options *serverOptions, tests func(session *testSe
 
 	if options.uidValidityGenerator != nil {
 		gluonOptions = append(gluonOptions, gluon.WithUIDValidityGenerator(options.uidValidityGenerator))
+	}
+
+	if options.disableIMAPAuthenticate {
+		gluonOptions = append(gluonOptions, gluon.WithDisableIMAPAuthenticate())
 	}
 
 	// Create a new gluon server.

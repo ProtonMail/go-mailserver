@@ -25,6 +25,13 @@ func TestAuthenticateSuccess(t *testing.T) {
 	})
 }
 
+func TestAuthenticateDisabled(t *testing.T) {
+	runOneToOneTest(t, defaultServerOptions(t, withDisableIMAPAuthenticate()), func(c *testConnection, _ *testSession) {
+		c.C("A001 AUTHENTICATE PLAIN")
+		c.BAD("A001")
+	})
+}
+
 func TestAuthenticateFailure(t *testing.T) {
 	authString := base64AuthString("user", "badPass")
 

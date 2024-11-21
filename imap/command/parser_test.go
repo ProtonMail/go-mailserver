@@ -105,10 +105,10 @@ func TestParser_LiteralWithContinuationSubmission(t *testing.T) {
 	}()
 
 	s := rfcparser.NewScanner(reader)
-	p := NewParserWithLiteralContinuationCb(s, func(string) error {
+	p := NewParser(s, WithLiteralContinuationCallback(func(string) error {
 		close(continueCh)
 		return nil
-	})
+	}))
 
 	expected := Command{Tag: "A003", Payload: &Append{
 		Mailbox:  "saved-messages",
