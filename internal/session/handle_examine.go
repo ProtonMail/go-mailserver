@@ -36,7 +36,7 @@ func (s *Session) handleExamine(ctx context.Context, tag string, cmd *command.Ex
 		}
 
 		ch <- response.Flags().WithFlags(flags)
-		ch <- response.Exists().WithCount(imap.SeqID(mailbox.Count()))
+		ch <- response.Exists().WithCount(imap.SeqID(uint32(mailbox.Count())))
 		ch <- response.Recent().WithCount(uint32(mailbox.GetMessagesWithFlagCount(imap.FlagRecent)))
 		ch <- response.Ok().WithItems(response.ItemPermanentFlags(permFlags))
 		ch <- response.Ok().WithItems(response.ItemUIDNext(uidNext))

@@ -16,7 +16,7 @@ func (j *JSONReporter) ProduceReport(reports []*BenchmarkReport) error {
 		return err
 	}
 
-	return os.WriteFile(j.outputPath, []byte(result), 0o600)
+	return os.WriteFile(j.outputPath, result, 0o600)
 }
 
 func NewJSONReporter(output string) *JSONReporter {

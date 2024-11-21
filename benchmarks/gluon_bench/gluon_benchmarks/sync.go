@@ -51,7 +51,7 @@ func (s *Sync) Setup(ctx context.Context, benchmarkDir string) error {
 		gluon.WithLogger(loggerIn, loggerOut),
 	}
 
-	server, err := gluon.New(opts...)
+	server, err := gluon.New(opts...) //nolint:contextcheck
 	if err != nil {
 		return err
 	}

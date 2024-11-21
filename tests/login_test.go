@@ -151,7 +151,7 @@ func TestLoginEvents(t *testing.T) {
 		c.C("A001 login baduser badpass").NO("A001")
 		failedEvent, ok := (<-s.eventCh).(events.LoginFailed)
 		require.True(t, ok)
-		require.Equal(t, failedEvent.Username, "baduser")
+		require.Equal(t, "baduser", failedEvent.Username)
 
 		c.C("A002 login user pass").OK("A002")
 		loginEvent, ok := (<-s.eventCh).(events.Login)

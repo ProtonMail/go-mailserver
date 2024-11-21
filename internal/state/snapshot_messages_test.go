@@ -96,7 +96,7 @@ func TestMessageUIDRange(t *testing.T) {
 	// UIDRange Higher than maximum
 	{
 		result := msg.uidRange(imap.UID(40), imap.UID(80))
-		require.Equal(t, 3, len(result))
+		require.Len(t, result, 3)
 		require.Equal(t, result[0].UID, imap.UID(40))
 		require.Equal(t, result[1].UID, imap.UID(50))
 		require.Equal(t, result[2].UID, imap.UID(60))
@@ -105,7 +105,7 @@ func TestMessageUIDRange(t *testing.T) {
 	// UIDRange Lower than minimum
 	{
 		result := msg.uidRange(imap.UID(1), imap.UID(10))
-		require.Equal(t, 1, len(result))
+		require.Len(t, result, 1)
 		require.Equal(t, result[0].UID, imap.UID(10))
 	}
 
@@ -130,7 +130,7 @@ func TestMessageUIDRange(t *testing.T) {
 	// UIDRange for interval that is valid, but not all values exist
 	{
 		result := msg.uidRange(imap.UID(25), imap.UID(42))
-		require.Equal(t, 2, len(result))
+		require.Len(t, result, 2)
 		require.Equal(t, result[0].UID, imap.UID(30))
 		require.Equal(t, result[1].UID, imap.UID(40))
 	}
@@ -153,8 +153,8 @@ func TestMessageRange1HigherThanMax(t *testing.T) {
 		seqInterval, err := msg.resolveSeqInterval(seqSetInterval)
 		require.NoError(t, err)
 
-		require.Equal(t, uidInterval, []UIDInterval{{begin: imap.UID(3), end: imap.UID(3)}})
-		require.Equal(t, seqInterval, []SeqInterval{{begin: imap.SeqID(3), end: imap.SeqID(3)}})
+		require.Equal(t, []UIDInterval{{begin: imap.UID(3), end: imap.UID(3)}}, uidInterval)
+		require.Equal(t, []SeqInterval{{begin: imap.SeqID(3), end: imap.SeqID(3)}}, seqInterval)
 	}
 
 	{
@@ -199,13 +199,13 @@ func TestSnapListGetMessages(t *testing.T) {
 		seqSetInterval := []command.SeqRange{{Begin: 1, End: command.SeqNumValueAsterisk}}
 		seqList, err := msg.getMessagesInSeqRange(seqSetInterval)
 		require.NoError(t, err)
-		require.Equal(t, 2, len(seqList))
+		require.Len(t, seqList, 2)
 		require.Equal(t, seqList[0].Seq, imap.SeqID(1))
 		require.Equal(t, seqList[1].Seq, imap.SeqID(2))
 
 		uidList, err := msg.getMessagesInUIDRange(seqSetInterval)
 		require.NoError(t, err)
-		require.Equal(t, 2, len(uidList))
+		require.Len(t, uidList, 2)
 		require.Equal(t, uidList[0].UID, imap.UID(1))
 		require.Equal(t, uidList[1].UID, imap.UID(2))
 	}
@@ -216,7 +216,7 @@ func TestSnapListGetMessages(t *testing.T) {
 
 		uidList, err := msg.getMessagesInUIDRange(seqSetInterval)
 		require.NoError(t, err)
-		require.Equal(t, 1, len(uidList))
+		require.Len(t, uidList, 1)
 		require.Equal(t, uidList[0].UID, imap.UID(2))
 	}
 }

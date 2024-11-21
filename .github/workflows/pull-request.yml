@@ -14,23 +14,23 @@ jobs:
       - name: Get sources
         uses: actions/checkout@v3
 
-      - name: Set up Go 1.21
+      - name: Set up Go 1.23.3
         uses: actions/setup-go@v3
         with:
-          go-version: '1.21'
+          go-version: '1.23.3'
 
       - name: Run go mod tidy
         run: go mod tidy
 
       - name: Run golangci-lint
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@251ceaa228607dd3e0371694a1ab2c45d21cb744
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
           golangci-lint run --timeout=500s
 
       - name: Run govulncheck
         uses: golang/govulncheck-action@v1
         with:
-          go-version-input: 1.21
+          go-version-input: 1.23
           go-package: ./...
 
       - name: Run tests

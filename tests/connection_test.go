@@ -64,16 +64,14 @@ func newTestConnection(tb testing.TB, conn net.Conn) *testConnection {
 func (s *testConnection) C(value string) *testConnection {
 	n, err := s.conn.Write([]byte(value + "\r\n"))
 	require.NoError(s.tb, err)
-	require.Greater(s.tb, n, 0)
-
+	require.Positive(s.tb, n)
 	return s
 }
 
 func (s *testConnection) Cb(b []byte) *testConnection {
 	n, err := s.conn.Write(append(b, []byte("\r\n")...))
 	require.NoError(s.tb, err)
-	require.Greater(s.tb, n, 0)
-
+	require.Positive(s.tb, n)
 	return s
 }
 

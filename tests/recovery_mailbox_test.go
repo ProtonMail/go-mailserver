@@ -265,7 +265,7 @@ func TestRecoveryMailboxOnlyReportsOnFirstDedupedMessage(t *testing.T) {
 
 		{
 			reports := s.reporter.getReports()
-			require.Equal(t, 1, len(reports))
+			require.Len(t, reports, 1)
 		}
 	})
 }

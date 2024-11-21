@@ -322,7 +322,7 @@ func TestMessageCreatedWithIgnoreMissingMailbox(t *testing.T) {
 			s.messageCreatedWithMailboxes("user", []imap.MailboxID{mailboxID, "THIS MAILBOX DOES NOT EXISTS"}, []byte("To: Test"), time.Now())
 			status, err := c.Select("mbox", false)
 			require.NoError(t, err)
-			require.Equal(t, status.Messages, uint32(0))
+			require.Equal(t, uint32(0), status.Messages)
 		}
 		{
 			// Second round succeeds as we publish an update that is allowed to fail.
@@ -330,7 +330,7 @@ func TestMessageCreatedWithIgnoreMissingMailbox(t *testing.T) {
 			s.messageCreatedWithMailboxes("user", []imap.MailboxID{mailboxID, "THIS MAILBOX DOES NOT EXISTS"}, []byte("To: Test"), time.Now())
 			status, err := c.Select("mbox", false)
 			require.NoError(t, err)
-			require.Equal(t, status.Messages, uint32(1))
+			require.Equal(t, uint32(1), status.Messages)
 		}
 	})
 }

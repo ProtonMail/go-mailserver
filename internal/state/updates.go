@@ -491,7 +491,7 @@ func NewMailboxRemoteIDUpdateStateUpdate(internalID imap.InternalMailboxID, remo
 	}
 }
 
-func (u *mailboxRemoteIDUpdateStateUpdate) Apply(ctx context.Context, tx db.Transaction, s *State) error {
+func (u *mailboxRemoteIDUpdateStateUpdate) Apply(_ context.Context, _ db.Transaction, s *State) error {
 	s.snap.mboxID.RemoteID = u.remoteID
 
 	return nil
@@ -509,7 +509,7 @@ func NewMailboxDeletedStateUpdate(mboxID imap.InternalMailboxID) Update {
 	return &mailboxDeletedStateUpdate{MBoxIDStateFilter: MBoxIDStateFilter{MboxID: mboxID}}
 }
 
-func (u *mailboxDeletedStateUpdate) Apply(ctx context.Context, tx db.Transaction, s *State) error {
+func (u *mailboxDeletedStateUpdate) Apply(_ context.Context, _ db.Transaction, s *State) error {
 	s.markInvalid()
 
 	return nil
@@ -527,7 +527,7 @@ func NewUIDValidityBumpedStateUpdate() Update {
 	return &uidValidityBumpedStateUpdate{}
 }
 
-func (u *uidValidityBumpedStateUpdate) Apply(ctx context.Context, tx db.Transaction, s *State) error {
+func (u *uidValidityBumpedStateUpdate) Apply(_ context.Context, _ db.Transaction, s *State) error {
 	s.markInvalid()
 
 	return nil

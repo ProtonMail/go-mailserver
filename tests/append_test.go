@@ -128,7 +128,7 @@ func TestAppendWhileSelected(t *testing.T) {
 		// Mailbox should have read-write modifier
 		mailboxStatus, err := client.Select(mailboxName, false)
 		require.NoError(t, err)
-		require.Equal(t, false, mailboxStatus.ReadOnly)
+		require.False(t, mailboxStatus.ReadOnly)
 		// Add new message
 		require.NoError(t, doAppendWithClientFromFile(t, client, mailboxName, messagePath, time.Now(), goimap.SeenFlag))
 		// EXISTS response is assigned to Messages member

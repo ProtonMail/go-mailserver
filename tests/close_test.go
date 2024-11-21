@@ -101,7 +101,7 @@ func TestCloseWithClient(t *testing.T) {
 		{
 			mailboxStatus, err := client.Select(messageBoxName, false)
 			require.NoError(t, err)
-			require.Equal(t, false, mailboxStatus.ReadOnly)
+			require.False(t, mailboxStatus.ReadOnly)
 		}
 
 		{

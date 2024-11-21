@@ -90,14 +90,14 @@ func listMailboxesClient(t testing.TB, client *client.Client, reference string, 
 
 	go func() {
 		done <- client.List(reference, expression, mailboxesChannel)
-		require.NoError(t, <-done)
+		require.NoError(t, <-done) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(mailboxesChannel))
 }
 
 func checkMailboxesMatchNamesAndAttributes(t *testing.T, client *client.Client, reference string, expression string, expectedNamesAndAttributes map[string][]string) {
-	haveNames := []string{}
+	var haveNames []string
 	for _, mbox := range listMailboxesClient(t, client, reference, expression) {
 		haveNames = append(haveNames, mbox.Name)
 
@@ -106,7 +106,7 @@ func checkMailboxesMatchNamesAndAttributes(t *testing.T, client *client.Client, 
 		require.ElementsMatch(t, wantAttributes, mbox.Attributes, "for mailbox %q", mbox.Name)
 	}
 
-	wantNames := []string{}
+	var wantNames []string
 	for name := range expectedNamesAndAttributes {
 		wantNames = append(wantNames, name)
 	}
@@ -131,7 +131,7 @@ func storeWithRetrievalClient(t testing.TB, client *client.Client, seqset *goima
 	ch := make(chan *goimap.Message)
 
 	go func() {
-		require.NoError(t, client.Store(seqset, item, value, ch))
+		require.NoError(t, client.Store(seqset, item, value, ch)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(ch))
@@ -141,7 +141,7 @@ func uidStoreWithRetrievalClient(t testing.TB, client *client.Client, seqset *go
 	ch := make(chan *goimap.Message)
 
 	go func() {
-		require.NoError(t, client.UidStore(seqset, item, value, ch))
+		require.NoError(t, client.UidStore(seqset, item, value, ch)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(ch))
@@ -163,7 +163,7 @@ func fetchMessagesClient(t testing.TB, client *client.Client, seqset *goimap.Seq
 	ch := make(chan *goimap.Message)
 
 	go func() {
-		require.NoError(t, client.Fetch(seqset, items, ch))
+		require.NoError(t, client.Fetch(seqset, items, ch)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(ch))
@@ -173,7 +173,7 @@ func uidFetchMessagesClient(t testing.TB, client *client.Client, seqset *goimap.
 	ch := make(chan *goimap.Message)
 
 	go func() {
-		require.NoError(t, client.UidFetch(seqset, items, ch))
+		require.NoError(t, client.UidFetch(seqset, items, ch)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(ch))
@@ -183,7 +183,7 @@ func expungeClient(t testing.TB, client *client.Client) []uint32 {
 	expungeCh := make(chan uint32)
 
 	go func() {
-		require.NoError(t, client.Expunge(expungeCh))
+		require.NoError(t, client.Expunge(expungeCh)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(expungeCh))
@@ -193,7 +193,7 @@ func uidExpungeClient(t testing.TB, client *uidplus.Client, sequenceSet *goimap.
 	expungeCh := make(chan uint32)
 
 	go func() {
-		require.NoError(t, client.UidExpunge(sequenceSet, expungeCh))
+		require.NoError(t, client.UidExpunge(sequenceSet, expungeCh)) //nolint:testifylint
 	}()
 
 	return iterator.Collect(iterator.Chan(expungeCh))
@@ -307,7 +307,7 @@ type messageValidator struct {
 func newEmptyIMAPMessageValidator() *messageValidator {
 	return &messageValidator{
 		validateSeqNum: func(t testing.TB, u uint32) {
-			require.Greater(t, u, uint32(0))
+			require.Positive(t, u)
 		},
 		validateUid: func(t testing.TB, u uint32) {
 			require.Zero(t, u)
@@ -896,7 +896,7 @@ func newEmptyBodyStructureValidator() *bodyStructureValidator {
 		validateRFCEnvelope:      nil,
 		validateRFCBodyStructure: nil,
 		validateLines: func(tb testing.TB, u uint32) {
-			require.Zero(tb, 0)
+			require.Zero(tb, u)
 		},
 		validateExtended: func(tb testing.TB, b bool) {
 			require.True(tb, b)

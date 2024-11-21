@@ -26,7 +26,7 @@ body2
 		require.NoError(t, err)
 
 		parts := scanner.ScanAll()
-		require.Equal(t, len(parts), 2)
+		require.Len(t, parts, 2)
 
 		assert.Equal(t, "\nbody1\n", string(parts[0].Data))
 		assert.Equal(t, "\nbody2\n", string(parts[1].Data))
@@ -45,7 +45,7 @@ func TestScannerMalformedLineEnding(t *testing.T) {
 		require.NoError(t, err)
 
 		parts := scanner.ScanAll()
-		require.Equal(t, len(parts), 2)
+		require.Len(t, parts, 2)
 
 		assert.Equal(t, "\r\nbody1\r\n", string(parts[0].Data))
 		assert.Equal(t, "\r\nbody2\r\n", string(parts[1].Data))
@@ -88,7 +88,7 @@ This is the epilogue.  It is also to be ignored.
 	require.NoError(t, err)
 
 	parts := scanner.ScanAll()
-	require.Equal(t, 2, len(parts))
+	require.Len(t, parts, 2)
 
 	assert.Equal(t, `Content-type: multipart/mixed; boundary="nested boundary" 
 
@@ -128,7 +128,7 @@ This part does end with a linebreak.
 	require.NoError(t, err)
 
 	parts := scanner.ScanAll()
-	require.Equal(t, 2, len(parts))
+	require.Len(t, parts, 2)
 
 	assert.Equal(t, `Content-type: text/plain; charset=us-ascii
 

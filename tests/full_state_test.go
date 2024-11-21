@@ -163,8 +163,8 @@ func TestReceptionOnIdle(t *testing.T) {
 			require.NoError(t, err)
 		}
 
-		require.Equal(t, existsUpdate, uint32(3), "Not received the good amount of exists update")
-		require.Equal(t, recentUpdate, uint32(3), "Not received the good amount of recent update")
+		require.Equal(t, uint32(3), existsUpdate, "Not received the good amount of exists update")
+		require.Equal(t, uint32(3), recentUpdate, "Not received the good amount of recent update")
 		{
 			expectedFlags := []string{
 				goimap.RecentFlag,
@@ -226,7 +226,7 @@ func TestMorningFiltering(t *testing.T) {
 				// either Delete
 				uidStoreWithRetrievalClient(t, client, createSeqSet(strId), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
 				expungedIds := expungeClient(t, client)
-				require.Equal(t, 1, len(expungedIds))
+				require.Len(t, expungedIds, 1)
 
 			case 1:
 				// or unseen
