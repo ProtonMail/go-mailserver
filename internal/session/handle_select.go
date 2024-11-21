@@ -37,7 +37,7 @@ func (s *Session) handleSelect(ctx context.Context, tag string, cmd *command.Sel
 		}
 
 		ch <- response.Flags().WithFlags(flags)
-		ch <- response.Exists().WithCount(imap.SeqID(mailbox.Count()))
+		ch <- response.Exists().WithCount(imap.SeqID(uint32(mailbox.Count())))
 		ch <- response.Recent().WithCount(uint32(mailbox.GetMessagesWithFlagCount(imap.FlagRecent)))
 		ch <- response.Ok().WithItems(response.ItemPermanentFlags(permFlags)).WithMessage("Flags permitted")
 		ch <- response.Ok().WithItems(response.ItemUIDNext(uidNext)).WithMessage("Predicted next UID")

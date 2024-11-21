@@ -34,16 +34,16 @@ func TestHeader_Has(t *testing.T) {
 	header, err := NewHeader([]byte(literal))
 	require.NoError(t, err)
 
-	assert.Equal(t, true, header.Has("To"))
-	assert.Equal(t, true, header.Has("to"))
-	assert.Equal(t, false, header.Has("Too"))
-	assert.Equal(t, true, header.Has("From"))
-	assert.Equal(t, true, header.Has("from"))
-	assert.Equal(t, false, header.Has("fromm"))
-	assert.Equal(t, true, header.Has("Subject"))
-	assert.Equal(t, true, header.Has("subject"))
-	assert.Equal(t, false, header.Has("subjectt"))
-	assert.Equal(t, true, header.Has("References"))
+	assert.True(t, header.Has("To"))
+	assert.True(t, header.Has("to"))
+	assert.False(t, header.Has("Too"))
+	assert.True(t, header.Has("From"))
+	assert.True(t, header.Has("from"))
+	assert.False(t, header.Has("fromm"))
+	assert.True(t, header.Has("Subject"))
+	assert.True(t, header.Has("subject"))
+	assert.False(t, header.Has("subjectt"))
+	assert.True(t, header.Has("References"))
 }
 
 func TestHeader_Get(t *testing.T) {

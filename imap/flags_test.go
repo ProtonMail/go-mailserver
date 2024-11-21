@@ -49,15 +49,15 @@ func TestFlagSet_Len(t *testing.T) {
 }
 
 func TestFlagSet_ToSlice(t *testing.T) {
-	require.True(t, len(NewFlagSet().ToSlice()) == 0)
+	require.Empty(t, NewFlagSet().ToSlice())
 
 	fs := NewFlagSet("flag1", "flag2", "FLAG2", "flag3")
-	require.True(t, len(fs.ToSlice()) == 3)
+	require.Len(t, fs.ToSlice(), 3)
 
 	// Check that we return a hard copy.
 	fs = NewFlagSet("flag1", "flag2", "flag3")
 	sl := fs.ToSlice()
-	require.Equal(t, 3, len(sl))
+	require.Len(t, sl, 3)
 
 	// Modify something in the returned slice.
 	sl[0] = "flag2"

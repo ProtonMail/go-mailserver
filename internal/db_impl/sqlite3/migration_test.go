@@ -3,7 +3,6 @@ package sqlite3
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -51,7 +50,7 @@ func TestMigration_VersionTooHigh(t *testing.T) {
 
 	err = client.Init(context.Background(), imap.DefaultEpochUIDValidityGenerator())
 	require.Error(t, err)
-	require.True(t, errors.Is(err, db.ErrInvalidDatabaseVersion))
+	require.ErrorIs(t, err, db.ErrInvalidDatabaseVersion)
 }
 
 func TestRunMigrations(t *testing.T) {
@@ -73,7 +72,7 @@ func TestRunMigrations(t *testing.T) {
 	runAndValidateDB(t, testDir, "foo", testData, uidGenerator)
 }
 
-func TestMigration_ConnectorSettingsEmtpyOnFirstUse(t *testing.T) {
+func TestMigration_ConnectorSettingsEmptyOnFirstUse(t *testing.T) {
 	testDir := t.TempDir()
 
 	client, _, err := NewClient(testDir, "foo", false, false)
@@ -197,7 +196,7 @@ func runAndValidateDB(t *testing.T, testDir, user string, testData *testData, ui
 				return result.InternalID == m.messageID
 			})
 
-			require.True(t, idx >= 0)
+			require.GreaterOrEqual(t, idx, 0)
 
 			require.Equal(t, m.recent, msg[idx].Recent)
 			require.Equal(t, m.deleted, msg[idx].Deleted)

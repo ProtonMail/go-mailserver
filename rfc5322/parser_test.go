@@ -262,7 +262,7 @@ func TestParseAddress(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			addrs, err := ParseAddress(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.ElementsMatch(t, test.addrs, addrs)
 		})
 	}
@@ -422,7 +422,7 @@ func TestParseAddressList(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			addrs, err := ParseAddressList(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.ElementsMatch(t, test.addrs, addrs)
 		})
 	}
@@ -599,7 +599,7 @@ func TestParseGroup(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			addrs, err := ParseAddressList(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.ElementsMatch(t, test.addrs, addrs)
 		})
 	}
@@ -728,7 +728,7 @@ func TestParseSingleAddressEncodedWord(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			addrs, err := ParseAddressList(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.ElementsMatch(t, test.addrs, addrs)
 		})
 	}
@@ -751,7 +751,7 @@ func TestParseAddressInvalid(t *testing.T) {
 
 		t.Run(test, func(t *testing.T) {
 			_, err := ParseAddressList(test)
-			assert.Error(t, err)
+			require.Error(t, err)
 			assert.True(t, rfcparser.IsError(err))
 		})
 	}
@@ -820,7 +820,7 @@ func TestParseAddressListEmoji(t *testing.T) {
 	}
 
 	addrs, err := ParseAddressList(input)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.ElementsMatch(t, expected, addrs)
 }
 
@@ -884,6 +884,6 @@ func FuzzRFC5322(f *testing.F) {
 func TestParse_AddressAngleAddrOnlyWithSeparator(t *testing.T) {
 	// EOF was not properly handled after separator.
 	addrList, err := ParseAddressList("<test@user.com>,")
-	assert.NoError(t, err)
-	require.Equal(t, addrList[0].Address, "test@user.com")
+	require.NoError(t, err)
+	require.Equal(t, "test@user.com", addrList[0].Address)
 }

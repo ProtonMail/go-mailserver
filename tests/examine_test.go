@@ -52,7 +52,7 @@ func TestExamineClient(t *testing.T) {
 			require.ElementsMatch(t, mailboxStatus.PermanentFlags, []string{goimap.SeenFlag, goimap.DeletedFlag, goimap.FlaggedFlag})
 			require.Equal(t, uint32(3), mailboxStatus.UidNext)
 			require.Equal(t, uint32(1), mailboxStatus.UidValidity)
-			require.Equal(t, true, mailboxStatus.ReadOnly)
+			require.True(t, mailboxStatus.ReadOnly)
 		}
 		// Examining INBOX again DOES NOT modify the RECENT value.
 		{
@@ -65,7 +65,7 @@ func TestExamineClient(t *testing.T) {
 			require.ElementsMatch(t, mailboxStatus.PermanentFlags, []string{goimap.SeenFlag, goimap.DeletedFlag, goimap.FlaggedFlag})
 			require.Equal(t, uint32(3), mailboxStatus.UidNext)
 			require.Equal(t, uint32(1), mailboxStatus.UidValidity)
-			require.Equal(t, true, mailboxStatus.ReadOnly)
+			require.True(t, mailboxStatus.ReadOnly)
 		}
 		{
 			mailboxStatus, err := client.Select("Archive", true)
@@ -77,7 +77,7 @@ func TestExamineClient(t *testing.T) {
 			require.ElementsMatch(t, mailboxStatus.PermanentFlags, []string{goimap.SeenFlag, goimap.DeletedFlag, goimap.FlaggedFlag})
 			require.Equal(t, uint32(2), mailboxStatus.UidNext)
 			require.Equal(t, uint32(1), mailboxStatus.UidValidity)
-			require.Equal(t, true, mailboxStatus.ReadOnly)
+			require.True(t, mailboxStatus.ReadOnly)
 		}
 		{
 			_, err := client.Select("INBOX", true)

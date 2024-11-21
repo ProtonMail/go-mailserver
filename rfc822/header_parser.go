@@ -174,19 +174,19 @@ type parsedHeaderEntry struct {
 	valueEnd   int
 }
 
-func (p parsedHeaderEntry) hasKey() bool {
+func (p *parsedHeaderEntry) hasKey() bool {
 	return p.keyStart != p.keyEnd
 }
 
-func (p parsedHeaderEntry) getKey(header []byte) []byte {
+func (p *parsedHeaderEntry) getKey(header []byte) []byte {
 	return header[p.keyStart:p.keyEnd]
 }
 
-func (p parsedHeaderEntry) getValue(header []byte) []byte {
+func (p *parsedHeaderEntry) getValue(header []byte) []byte {
 	return header[p.valueStart:p.valueEnd]
 }
 
-func (p parsedHeaderEntry) getAll(header []byte) []byte {
+func (p *parsedHeaderEntry) getAll(header []byte) []byte {
 	return header[p.keyStart:p.valueEnd]
 }
 

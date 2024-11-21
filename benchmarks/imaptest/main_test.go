@@ -19,7 +19,7 @@ import (
 
 const (
 	allowParallel     = false
-	doFullIMAPtestLog = false
+	doFullIMAPTestLog = false
 	gluonLogLevel     = "warn"
 	ignoreRecentError = true
 )
@@ -120,14 +120,14 @@ func newScenario(c caseConfig, settingName string, s settingsConfig, port int) (
 		port:      fmt.Sprintf("%d", port),
 		users:     c.Users,
 		name:      fmt.Sprintf("u%d_c%d_%s", c.Users, c.Clients, settingName),
-		timeout:   time.Duration(time.Second),
+		timeout:   time.Second,
 	}
 
 	if secs, err := strconv.Atoi(s["secs"]); err == nil {
 		sc.timeout = time.Duration(secs) * 2 * time.Second
 	}
 
-	// coomon arguments
+	// Common arguments
 	sc.imaptestParams = []string{
 		"host=127.0.0.1",
 		fmt.Sprintf("port=%d", port),
@@ -202,13 +202,13 @@ func (s *scenario) runGluon() {
 
 	fmt.Printf("Gluon[%s]:\n%s\nGluonEnd[%s]\n", s.name, out.String(), s.name)
 
-	assert.Error(s.t, err)
+	require.Error(s.t, err)
 	assert.Equal(s.t, "signal: killed", err.Error())
 }
 
 func (s *scenario) runIMAPTest() {
 	logPath := ""
-	if doFullIMAPtestLog {
+	if doFullIMAPTestLog {
 		logPath = s.t.TempDir() + "imaptest.log"
 		s.imaptestParams = append(s.imaptestParams, "output="+logPath)
 	}
@@ -223,12 +223,12 @@ func (s *scenario) runIMAPTest() {
 
 	fmt.Printf("IMAPTEST[%s]: %q\n%s\nIMAPTESTEND[%s]\n", s.name, s.imaptestParams, out.String(), s.name)
 
-	assert.NoError(s.t, err)
+	require.NoError(s.t, err)
 	assert.False(s.t, hasIMAPLogAnError(out.Bytes(), ignoreRecentError), "Error(s) found in imaptest log.")
 
-	if doFullIMAPtestLog {
+	if doFullIMAPTestLog {
 		log, err := os.ReadFile(logPath)
-		assert.NoError(s.t, err)
+		require.NoError(s.t, err)
 		fmt.Println("LOG", s.name, "\n", string(log), "\nLOG", s.name, "END")
 	}
 }

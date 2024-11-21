@@ -131,7 +131,7 @@ func (list *snapMsgList) where(fn func(seq snapMsgWithSeq) bool) []snapMsgWithSe
 	for idx, i := range list.msg {
 		snapWithSeq := snapMsgWithSeq{
 			snapMsg: i,
-			Seq:     imap.SeqID(idx + 1),
+			Seq:     imap.SeqID(uint32(idx + 1)),
 		}
 
 		if fn(snapWithSeq) {
@@ -148,7 +148,7 @@ func (list *snapMsgList) whereCount(fn func(seq snapMsgWithSeq) bool) int {
 	for idx, i := range list.msg {
 		snapWithSeq := snapMsgWithSeq{
 			snapMsg: i,
-			Seq:     imap.SeqID(idx + 1),
+			Seq:     imap.SeqID(uint32(idx + 1)),
 		}
 
 		if fn(snapWithSeq) {
@@ -177,13 +177,13 @@ func (list *snapMsgList) get(msgID imap.InternalMessageID) (snapMsgWithSeq, bool
 	}
 
 	return snapMsgWithSeq{
-		Seq:     imap.SeqID(index + 1),
+		Seq:     imap.SeqID(uint32(index + 1)),
 		snapMsg: list.msg[index],
 	}, ok
 }
 
 func (list *snapMsgList) seq(seq imap.SeqID) (snapMsgWithSeq, bool) {
-	if imap.SeqID(len(list.msg)) < seq {
+	if imap.SeqID(uint32(len(list.msg))) < seq {
 		return snapMsgWithSeq{}, false
 	}
 
@@ -195,7 +195,7 @@ func (list *snapMsgList) seq(seq imap.SeqID) (snapMsgWithSeq, bool) {
 
 func (list *snapMsgList) last() snapMsgWithSeq {
 	return snapMsgWithSeq{
-		Seq:     imap.SeqID(len(list.msg)),
+		Seq:     imap.SeqID(uint32(len(list.msg))),
 		snapMsg: list.msg[len(list.msg)-1],
 	}
 }
@@ -205,7 +205,7 @@ func (list *snapMsgList) seqRange(seqLo, seqHi imap.SeqID) []snapMsgWithSeq {
 	result := make([]snapMsgWithSeq, len(interval))
 
 	for i, v := range interval {
-		result[i].Seq = imap.SeqID(int(seqLo) + i)
+		result[i].Seq = imap.SeqID(uint32(seqLo) + uint32(i))
 		result[i].snapMsg = v
 	}
 
@@ -234,7 +234,7 @@ func (list *snapMsgList) uidRange(uidLo, uidHi imap.UID) []snapMsgWithSeq {
 	result := make([]snapMsgWithSeq, len(interval))
 
 	for i, v := range interval {
-		result[i].Seq = imap.SeqID(indexLo + i + 1)
+		result[i].Seq = imap.SeqID(uint32(indexLo + i + 1))
 		result[i].snapMsg = v
 	}
 
@@ -248,7 +248,7 @@ func (list *snapMsgList) getWithUID(uid imap.UID) (snapMsgWithSeq, bool) {
 	}
 
 	return snapMsgWithSeq{
-		Seq:     imap.SeqID(index + 1),
+		Seq:     imap.SeqID(uint32(index + 1)),
 		snapMsg: list.msg[index],
 	}, ok
 }
@@ -380,10 +380,10 @@ func (list *snapMsgList) resolveUIDInterval(seqSet []command.SeqRange) ([]UIDInt
 // - when used in a range, the order of the indexes in irrelevant.
 func (list *snapMsgList) resolveSeq(number command.SeqNum) (imap.SeqID, error) {
 	if number == command.SeqNumValueAsterisk {
-		return imap.SeqID(list.len()), nil
+		return imap.SeqID(uint32(list.len())), nil
 	}
 
-	return imap.SeqID(number), nil
+	return imap.SeqID(uint32(number)), nil
 }
 
 // resolveUID converts a textual message UID into an integer.
@@ -396,7 +396,7 @@ func (list *snapMsgList) resolveUID(number command.SeqNum) (imap.UID, error) {
 		return list.last().UID, nil
 	}
 
-	return imap.UID(number), nil
+	return imap.UID(uint32(number)), nil
 }
 
 func (list *snapMsgList) getMessagesInSeqRange(seqSet []command.SeqRange) ([]snapMsgWithSeq, error) {

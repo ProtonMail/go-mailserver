@@ -1,20 +1,14 @@
 run:
-  go: 1.21
-  skip-files:
-    - internal/parser/parser.go
-    - internal/parser/extern
+  go: 1.23
 
 linters:
   presets:
     - bugs
     - comment
-  enable:
-    - wsl
   disable:
     - godox # Annoying, we have too many TODOs at the moment :p
-    - scopelint # Deprecated, replaced by exportloopref, which is enabled by default.
+    - musttag # We do not want to force annotating every field name.
     - errorlint # Too many false positives
-
 issues:
   exclude-rules:
     - path: benchmarks
@@ -27,3 +21,7 @@ issues:
     - path: _test\.go
       linters:
         - dupword
+linters-settings:
+  gosec:
+    excludes:
+      - G115  # Potential integer overflow when converting between integer types

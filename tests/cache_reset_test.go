@@ -55,7 +55,7 @@ func TestSearchWhenFileDeletedFromCache(t *testing.T) {
 
 		seqs, err := client.Search(searchCriteria)
 		require.NoError(t, err)
-		require.Equal(t, 1, len(seqs))
+		require.Len(t, seqs, 1)
 		require.Equal(t, uint32(1), seqs[0])
 
 	})

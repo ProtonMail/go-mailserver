@@ -116,7 +116,7 @@ func (u *targetedExists) handle(ctx context.Context, snap *snapshot, stateID Sta
 		}
 	}
 
-	res := []response.Response{response.Exists().WithCount(imap.SeqID(snap.messages.len()))}
+	res := []response.Response{response.Exists().WithCount(imap.SeqID(uint32(snap.messages.len())))}
 
 	var dbUpdate responderDBUpdate
 

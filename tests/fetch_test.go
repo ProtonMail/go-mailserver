@@ -293,7 +293,7 @@ func TestFetchUID(t *testing.T) {
 		require.NoError(t, client.Expunge(nil))
 
 		messages := uidFetchMessagesClient(t, client, createSeqSet("2:5"), []goimap.FetchItem{goimap.FetchEnvelope, goimap.FetchUid})
-		require.Equal(t, 3, len(messages))
+		require.Len(t, messages, 3)
 
 		fetchResult := newFetchCommand(t, client).withItems(goimap.FetchEnvelope, goimap.FetchUid).fetchUid("5,2:4")
 		fetchResult.forSeqNum(2, func(builder *validatorBuilder) {
@@ -400,7 +400,7 @@ func TestFetchFromDataSequences(t *testing.T) {
 	})
 }
 
-func TestFetchFromDataUids(t *testing.T) {
+func TestFetchFromDataUIDs(t *testing.T) {
 	runOneToOneTestClientWithData(t, defaultServerOptions(t), func(client *client.Client, _ *testSession, _ string, _ imap.MailboxID) {
 		// Remove a couple of messages
 		require.NoError(t, client.Store(createSeqSet("20:29,50:60,90"), goimap.AddFlags, []interface{}{goimap.DeletedFlag}, nil))

@@ -34,28 +34,28 @@ func TestWriteControlledStore(t *testing.T) {
 
 			switch i % 3 {
 			case 0:
-				require.NoError(t, st.Set(id1, bytes.NewReader([]byte("literal1"))))
+				require.NoError(t, st.Set(id1, bytes.NewReader([]byte("literal1")))) //nolint:testifylint
 				id = id1
 			case 1:
-				require.NoError(t, st.Set(id2, bytes.NewReader([]byte("literal2"))))
+				require.NoError(t, st.Set(id2, bytes.NewReader([]byte("literal2")))) //nolint:testifylint
 				id = id2
 			case 2:
-				require.NoError(t, st.Set(id3, bytes.NewReader([]byte("literal3"))))
+				require.NoError(t, st.Set(id3, bytes.NewReader([]byte("literal3")))) //nolint:testifylint
 				id = id3
 			}
 
-			require.NotEmpty(t, id, imap.InternalMessageID{})
+			require.NotEmpty(t, id, imap.InternalMessageID{}) //nolint:testifylint
 
 			// It's not guaranteed which version of the literal will be available on disk, but it should be
 			// match one of the following
 			literal, err := st.Get(id)
-			require.NoError(t, err)
+			require.NoError(t, err) //nolint:testifylint
 
 			isEqual := bytes.Equal([]byte("literal1"), literal) ||
 				bytes.Equal([]byte("literal2"), literal) ||
 				bytes.Equal([]byte("literal3"), literal)
 
-			require.True(t, isEqual)
+			require.True(t, isEqual) //nolint:testifylint
 		}(i)
 	}
 

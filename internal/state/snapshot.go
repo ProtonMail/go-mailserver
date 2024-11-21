@@ -109,7 +109,7 @@ func (snap *snapshot) getAllMessages() []snapMsgWithSeq {
 
 	for i, v := range allMessages {
 		result[i] = snapMsgWithSeq{
-			Seq:     imap.SeqID(i + 1),
+			Seq:     imap.SeqID(uint32(i + 1)),
 			snapMsg: v,
 		}
 	}
@@ -184,7 +184,7 @@ func (snap *snapshot) firstMessageWithFlag(flag string) (snapMsgWithSeq, bool) {
 
 	for i, msg := range snap.messages.msg {
 		if msg.flags.ContainsUnchecked(flagLower) {
-			return snapMsgWithSeq{Seq: imap.SeqID(i + 1), snapMsg: msg}, true
+			return snapMsgWithSeq{Seq: imap.SeqID(uint32(i + 1)), snapMsg: msg}, true
 		}
 	}
 
@@ -196,7 +196,7 @@ func (snap *snapshot) firstMessageWithoutFlag(flag string) (snapMsgWithSeq, bool
 
 	for i, msg := range snap.messages.msg {
 		if !msg.flags.ContainsUnchecked(flagLower) {
-			return snapMsgWithSeq{Seq: imap.SeqID(i + 1), snapMsg: msg}, true
+			return snapMsgWithSeq{Seq: imap.SeqID(uint32(i + 1)), snapMsg: msg}, true
 		}
 	}
 

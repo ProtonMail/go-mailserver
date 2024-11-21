@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseDateTime(t *testing.T) {
@@ -166,7 +167,7 @@ func TestParseDateTime(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			got, err := ParseDateTime(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.want, got.Format(time.RFC3339))
 		})
 	}
@@ -199,7 +200,7 @@ func TestParseDateTimeObsolete(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			got, err := ParseDateTime(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.want, got.Format(time.RFC3339))
 		})
 	}
@@ -224,7 +225,7 @@ func TestParseDateTimeRelaxed(t *testing.T) {
 
 		t.Run(test.input, func(t *testing.T) {
 			got, err := ParseDateTime(test.input)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.want, got.Format(time.RFC3339))
 		})
 	}

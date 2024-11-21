@@ -244,7 +244,7 @@ func (b *Backend) GetState(ctx context.Context, username string, password []byte
 		return nil, err
 	}
 
-	state, err := b.users[userID].newState()
+	state, err := b.users[userID].newState() //nolint:contextcheck
 	if err != nil {
 		return nil, err
 	}

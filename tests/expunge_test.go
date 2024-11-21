@@ -30,10 +30,10 @@ func TestExpungeSingle(t *testing.T) {
 		require.NoError(t, client.Append("mbox", []string{goimap.SeenFlag}, time.Now(), strings.NewReader(buildRFC5322TestLiteral("To: 1@pm.me"))))
 
 		messages := storeWithRetrievalClient(t, client, createSeqSet("1"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-		require.Equal(t, 1, len(messages))
+		require.Len(t, messages, 1)
 		require.ElementsMatch(t, messages[0].Flags, []string{goimap.SeenFlag, goimap.DeletedFlag, goimap.RecentFlag})
 		expungedIds := expungeClient(t, client)
-		require.Equal(t, 1, len(expungedIds))
+		require.Len(t, expungedIds, 1)
 		require.Equal(t, uint32(1), expungedIds[0])
 	})
 }
@@ -77,13 +77,13 @@ func TestExpungeInterval(t *testing.T) {
 			require.NoError(t, client.Append("mbox", []string{goimap.SeenFlag}, time.Now(), strings.NewReader(buildRFC5322TestLiteral(fmt.Sprintf(`To: %d@pm.me`, i)))))
 		}
 		messages := storeWithRetrievalClient(t, client, createSeqSet("1,3"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-		require.Equal(t, 2, len(messages))
+		require.Len(t, messages, 2)
 		for _, message := range messages {
 			require.ElementsMatch(t, message.Flags, []string{goimap.SeenFlag, goimap.DeletedFlag, goimap.RecentFlag})
 		}
 		expungedIds := expungeClient(t, client)
-		require.Equal(t, 2, len(expungedIds))
-		require.Equal(t, expungedIds, []uint32{1, 2})
+		require.Len(t, expungedIds, 2)
+		require.Equal(t, []uint32{1, 2}, expungedIds)
 	})
 }
 
@@ -92,17 +92,17 @@ func beforeOrAfterExpungeCheck(t *testing.T, client *client.Client, mailboxName 
 	// TestExpungeWithAppendBeforeMailboxSelect and TestExpungeWithAppendAfterMailboxSelect
 	{
 		messages := storeWithRetrievalClient(t, client, createSeqSet("1"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-		require.Equal(t, 1, len(messages))
+		require.Len(t, messages, 1)
 		require.ElementsMatch(t, messages[0].Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 	}
 	{
 		messages := storeWithRetrievalClient(t, client, createSeqSet("2"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-		require.Equal(t, 1, len(messages))
+		require.Len(t, messages, 1)
 		require.ElementsMatch(t, messages[0].Flags, []string{goimap.RecentFlag, goimap.DeletedFlag})
 	}
 	{
 		messages := storeWithRetrievalClient(t, client, createSeqSet("3"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-		require.Equal(t, 1, len(messages))
+		require.Len(t, messages, 1)
 		require.ElementsMatch(t, messages[0].Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 	}
 
@@ -170,18 +170,18 @@ func TestExpungeUID(t *testing.T) {
 
 		{
 			messages := storeWithRetrievalClient(t, client, createSeqSet("1"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-			require.Equal(t, 1, len(messages))
+			require.Len(t, messages, 1)
 			require.ElementsMatch(t, messages[0].Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 		}
 		{
 			messages := uidFetchMessagesClient(t, client, createSeqSet("1"), []goimap.FetchItem{goimap.FetchUid, goimap.FetchFlags})
-			require.Equal(t, 1, len(messages))
+			require.Len(t, messages, 1)
 			require.ElementsMatch(t, messages[0].Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 		}
 
 		{
 			expungedIds := uidExpungeClient(t, uidClient, createSeqSet("1"))
-			require.Equal(t, 1, len(expungedIds))
+			require.Len(t, expungedIds, 1)
 			require.Equal(t, uint32(1), expungedIds[0])
 		}
 
@@ -198,14 +198,14 @@ func TestExpungeUID(t *testing.T) {
 
 		{
 			messages := uidStoreWithRetrievalClient(t, client, createSeqSet("2,4"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-			require.Equal(t, 2, len(messages))
+			require.Len(t, messages, 2)
 			for _, message := range messages {
 				require.ElementsMatch(t, message.Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 			}
 		}
 		{
 			expungedIds := uidExpungeClient(t, uidClient, createSeqSet("4,2"))
-			require.Equal(t, 2, len(expungedIds))
+			require.Len(t, expungedIds, 2)
 			require.Equal(t, []uint32{1, 2}, expungedIds)
 		}
 
@@ -213,7 +213,7 @@ func TestExpungeUID(t *testing.T) {
 			mailboxStatus, err := client.Status(mailboxName, []goimap.StatusItem{goimap.StatusMessages})
 			require.NoError(t, err)
 			require.Equal(t, uint32(2), mailboxStatus.Messages)
-			require.Equal(t, 2, len(fetchMessagesClient(t, client, createSeqSet("1,2"), []goimap.FetchItem{goimap.FetchUid})))
+			require.Len(t, fetchMessagesClient(t, client, createSeqSet("1,2"), []goimap.FetchItem{goimap.FetchUid}), 2)
 		}
 	})
 }
@@ -233,14 +233,14 @@ func TestExpungeResponseSequence(t *testing.T) {
 
 		{
 			messages := storeWithRetrievalClient(t, client, createSeqSet("3,4,7,11"), goimap.AddFlags, []interface{}{goimap.DeletedFlag})
-			require.Equal(t, 4, len(messages))
+			require.Len(t, messages, 4)
 			for _, message := range messages {
 				require.ElementsMatch(t, message.Flags, []string{goimap.SeenFlag, goimap.RecentFlag, goimap.DeletedFlag})
 			}
 		}
 		{
 			expungedIds := expungeClient(t, client)
-			require.Equal(t, 4, len(expungedIds))
+			require.Len(t, expungedIds, 4)
 			require.Equal(t, []uint32{3, 3, 5, 8}, expungedIds)
 		}
 	})

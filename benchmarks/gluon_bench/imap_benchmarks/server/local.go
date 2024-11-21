@@ -45,7 +45,7 @@ func (*LocalServerBuilder) New(ctx context.Context, serverPath string, profiler 
 	opts = append(opts, gluon.WithDataDir(serverPath))
 	opts = append(opts, gluon.WithDatabaseDir(serverPath))
 
-	server, err := gluon.New(opts...)
+	server, err := gluon.New(opts...) //nolint:contextcheck
 	if err != nil {
 		return nil, err
 	}
