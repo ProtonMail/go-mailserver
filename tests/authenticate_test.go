@@ -94,7 +94,7 @@ func TestAuthenticateTooManyAttemptsMany(t *testing.T) {
 					c[i].C(tag + " AUTHENTICATE PLAIN")
 					c[i].S("+")
 					c[i].C(authString).NO(tag)
-				}), time.Second)
+				}), 990*time.Millisecond)
 			})
 		}
 

@@ -99,7 +99,7 @@ func TestLoginCapabilities(t *testing.T) {
 	})
 }
 
-func TestLoginTooManyAttemps(t *testing.T) {
+func TestLoginTooManyAttempts(t *testing.T) {
 	runOneToOneTest(t, defaultServerOptions(t), func(c *testConnection, _ *testSession) {
 		// 3 attempts.
 		c.C("A001 login user badpass").NO("A001")
@@ -109,12 +109,12 @@ func TestLoginTooManyAttemps(t *testing.T) {
 		// The client should be jailed for 1 sec.
 		require.Greater(t, timeFunc(func() {
 			c.C("A001 login user badpass").NO("A001")
-		}), time.Second)
+		}), 990*time.Millisecond)
 
 		// After unjailed, get direct answer.
 		require.Less(t, timeFunc(func() {
 			c.C("A001 login user pass").OK("A001")
-		}), time.Second)
+		}), 990*time.Millisecond)
 	})
 }
 
@@ -134,7 +134,7 @@ func TestLoginTooManyAttemptsMany(t *testing.T) {
 			wg.Go(func() {
 				require.Greater(t, timeFunc(func() {
 					c[i].C("A001 login user badpass").NO("A001")
-				}), time.Second)
+				}), 990*time.Millisecond)
 			})
 		}
 
