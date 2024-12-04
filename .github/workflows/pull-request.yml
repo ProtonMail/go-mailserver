@@ -8,14 +8,14 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-12, windows-latest]
+        os: [ubuntu-20.04, macos-15, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Get sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go 1.23.3
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: '1.23.3'
 
@@ -23,9 +23,11 @@ jobs:
         run: go mod tidy
 
       - name: Run golangci-lint
-        run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.62.0
-          golangci-lint run --timeout=500s
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.62.0
+          args: --timeout=500s
+          skip-cache: true
 
       - name: Run govulncheck
         uses: golang/govulncheck-action@v1
