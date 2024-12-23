@@ -14,11 +14,12 @@ type MessageUpdated struct {
 	updateBase
 	*updateWaiter
 
-	Message       Message
-	Literal       []byte
-	MailboxIDs    []MailboxID
-	ParsedMessage *ParsedMessage
-	AllowCreate   bool
+	Message                 Message
+	Literal                 []byte
+	MailboxIDs              []MailboxID
+	ParsedMessage           *ParsedMessage
+	AllowCreate             bool
+	IgnoreUnknownMailboxIDs bool
 }
 
 func NewMessageUpdated(
@@ -26,25 +27,27 @@ func NewMessageUpdated(
 	literal []byte,
 	mailboxIDs []MailboxID,
 	parsedMessage *ParsedMessage,
-	allowCreate bool,
+	allowCreate, ignoreUnkownMailboxIDs bool,
 ) *MessageUpdated {
 	return &MessageUpdated{
-		updateWaiter:  newUpdateWaiter(),
-		Message:       message,
-		Literal:       literal,
-		MailboxIDs:    mailboxIDs,
-		ParsedMessage: parsedMessage,
-		AllowCreate:   allowCreate,
+		updateWaiter:            newUpdateWaiter(),
+		Message:                 message,
+		Literal:                 literal,
+		MailboxIDs:              mailboxIDs,
+		ParsedMessage:           parsedMessage,
+		AllowCreate:             allowCreate,
+		IgnoreUnknownMailboxIDs: ignoreUnkownMailboxIDs,
 	}
 }
 
 func (u *MessageUpdated) String() string {
-	return fmt.Sprintf("MessageUpdated: ID:%v Mailboxes:%v Flags:%s AllowCreate:%v",
+	return fmt.Sprintf("MessageUpdated: ID:%v Mailboxes:%v Flags:%s AllowCreate:%v IgnoreUnkownMailboxIDs:%v",
 		u.Message.ID.ShortID(),
 		xslices.Map(u.MailboxIDs, func(mboxID MailboxID) string {
 			return mboxID.ShortID()
 		}),
 		u.Message.Flags.ToSlice(),
 		u.AllowCreate,
+		u.IgnoreUnknownMailboxIDs,
 	)
 }
