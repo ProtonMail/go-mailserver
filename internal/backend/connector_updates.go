@@ -204,6 +204,9 @@ func (user *user) applyMessagesCreated(ctx context.Context, update *imap.Message
 	messageForMBox := make(map[imap.InternalMailboxID][]db.MessageIDPair)
 	mboxInternalIDMap := make(map[imap.MailboxID]imap.InternalMailboxID)
 
+	// for existing messages - we fully update them
+	var messagesToUpdate []*imap.MessageCreated
+
 	err := userDBWrite(ctx, user, func(ctx context.Context, tx db.Transaction) ([]state.Update, error) {
 		for _, message := range update.Messages {
 			if slices.Contains(message.MailboxIDs, ids.GluonInternalRecoveryMailboxRemoteID) {
@@ -213,7 +216,7 @@ func (user *user) applyMessagesCreated(ctx context.Context, update *imap.Message
 
 			internalID, ok := messagesToCreateFilter[message.Message.ID]
 			if !ok {
-				messageID, err := tx.GetMessageIDFromRemoteID(ctx, message.Message.ID)
+				_, err := tx.GetMessageIDFromRemoteID(ctx, message.Message.ID)
 				if db.IsErrNotFound(err) {
 					internalID = imap.NewInternalMessageID()
 
@@ -237,7 +240,10 @@ func (user *user) applyMessagesCreated(ctx context.Context, update *imap.Message
 					messagesToCreate = append(messagesToCreate, request)
 					messagesToCreateFilter[message.Message.ID] = internalID
 				} else if err == nil {
-					internalID = messageID
+					user.log.WithField("MessageID", message.Message.ID.ShortID()).
+						Info("Found existing message in create event, will update instead")
+					messagesToUpdate = append(messagesToUpdate, message)
+					continue
 				} else {
 					return nil, err
 				}
@@ -339,9 +345,23 @@ func (user *user) applyMessagesCreated(ctx context.Context, update *imap.Message
 				}
 			}
 		}
+		return err
 	}
 
-	return err
+	for _, message := range messagesToUpdate {
+		if err := user.applyMessageUpdated(ctx, imap.NewMessageUpdated(
+			message.Message,
+			message.Literal,
+			message.MailboxIDs,
+			message.ParsedMessage,
+			false,
+			update.IgnoreUnknownMailboxIDs,
+		)); err != nil {
+			return fmt.Errorf("failed to update previously existing message during creation: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // applyMessageMailboxesUpdated applies a MessageMailboxesUpdated update.
@@ -624,6 +644,12 @@ func (user *user) applyMessageUpdated(ctx context.Context, update *imap.MessageU
 			for _, mbox := range update.MailboxIDs {
 				internalMBoxID, err := tx.GetMailboxIDFromRemoteID(ctx, mbox)
 				if err != nil {
+					if update.IgnoreUnknownMailboxIDs {
+						user.log.WithField("MailboxID", mbox.ShortID()).
+							WithField("MessageID", update.Message.ID.ShortID()).
+							Warn("Unknown Mailbox ID during message update, skipping add to mailbox")
+						continue
+					}
 					return nil, err
 				}
 
@@ -702,6 +728,12 @@ func (user *user) applyMessageUpdated(ctx context.Context, update *imap.MessageU
 				for _, mbox := range update.MailboxIDs {
 					internalMBoxID, err := tx.GetMailboxIDFromRemoteID(ctx, mbox)
 					if err != nil {
+						if update.IgnoreUnknownMailboxIDs {
+							user.log.WithField("MailboxID", mbox.ShortID()).
+								WithField("MessageID", update.Message.ID.ShortID()).
+								Warn("Unknown Mailbox ID during message update, skipping add to mailbox")
+							continue
+						}
 						return nil, err
 					}
 
